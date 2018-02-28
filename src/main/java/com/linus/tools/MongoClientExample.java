@@ -1,4 +1,4 @@
-package com.linus.test;
+package com.linus.tools;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
