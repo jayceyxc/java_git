@@ -1,6 +1,7 @@
 package com.linus.tools;
 
 import org.apache.commons.cli.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import redis.clients.jedis.Jedis;
@@ -64,6 +65,7 @@ public class LabelImportTools {
                     String tagSegs[] = tagValue.split (":");
                     if (tagSegs.length == 2) {
                         String tag = tagSegs[0].trim ();
+                        tag = StringUtils.stripStart (tag, "0");
                         jedis.sadd (tag, adsl);
                     }
                 }
