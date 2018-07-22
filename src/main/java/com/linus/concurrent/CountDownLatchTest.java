@@ -1,8 +1,5 @@
 package com.linus.concurrent;
 
-
-import com.sun.xml.internal.rngom.parse.host.Base;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -45,7 +42,7 @@ abstract class BaseHealthChecker implements Runnable {
         return this.serviceUp;
     }
 
-    //This methos needs to be implemented by all specific service checker
+    //This methods needs to be implemented by all specific service checker
     abstract void verifyService();
 }
 

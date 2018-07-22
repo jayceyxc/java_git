@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -53,6 +54,7 @@ public class LabelImportTools {
         jedis.select (redisDb);
 
         BufferedReader reader = null;
+        long addedCount = 0;
         try {
             reader = new BufferedReader (new FileReader (fileName));
             String line;
@@ -66,20 +68,34 @@ public class LabelImportTools {
                     if (tagSegs.length == 2) {
                         String tag = tagSegs[0].trim ();
                         tag = StringUtils.stripStart (tag, "0");
-                        jedis.sadd (tag, adsl);
+                        if (1 == jedis.sadd (tag, adsl)) {
+                            addedCount++;
+                        }
                     }
+                }
+                if (addedCount % 1000 == 0) {
+                    log.info ("Finished inserted " + addedCount + " records");
                 }
             }
         } catch (FileNotFoundException fnfe) {
             log.error ("file " + fileName + " not exist");
         } catch (IOException ioe) {
             log.error ("read file failed");
+        } catch (JedisConnectionException jce) {
+            log.error ("redis connection error", jce);
         } finally {
             if (reader != null) {
                 try {
                     reader.close ();
                 } catch (IOException ioe) {
                     log.error ("close reader failed");
+                }
+            }
+            if (jedis != null) {
+                try {
+                    jedis.close ();
+                } catch (JedisConnectionException jce) {
+                    log.error ("close redis connection error", jce);
                 }
             }
         }
