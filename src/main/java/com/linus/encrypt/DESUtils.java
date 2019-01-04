@@ -8,14 +8,13 @@ package com.linus.encrypt;
  */
 
 import com.alibaba.fastjson.JSONObject;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 import java.security.SecureRandom;
+import java.util.Base64;
 
 public class DESUtils {
 
@@ -73,12 +72,14 @@ public class DESUtils {
         return cipher.doFinal(src);
     }
 
-    public static String encryptBASE64(byte[] key) throws Exception {
-        return (new BASE64Encoder()).encodeBuffer(key);
+    public static String encryptBASE64(byte[] key) {
+        return Base64.getEncoder().encodeToString(key);
+//        return Base64.encodeBase64String(key);
     }
 
-    public static byte[] decryptBASE64(String key) throws Exception {
-        return (new BASE64Decoder()).decodeBuffer(key);
+    public static byte[] decryptBASE64(String key) {
+        return Base64.getDecoder().decode(key);
+//        return Base64.decodeBase64(key);
     }
 
     @SuppressWarnings("deprecation")

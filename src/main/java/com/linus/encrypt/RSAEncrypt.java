@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -17,14 +19,14 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+//import org.apache.commons.codec.binary.Base64;
 
 /**
  * @Author: YuXuecheng
@@ -345,11 +347,11 @@ public class RSAEncrypt {
         return stringBuilder.toString();
     }
 
-    public static String encryptBASE64(byte[] key) throws Exception {
-        return (new BASE64Encoder()).encodeBuffer(key);
+    public static String encryptBASE64(byte[] key) {
+        return Base64.getEncoder().encodeToString(key);
     }
-    public static byte[] decryptBASE64(String key) throws Exception {
-        return (new BASE64Decoder()).decodeBuffer(key);
+    public static byte[] decryptBASE64(String key) {
+        return Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8));
     }
 
     public static void main(String[] args) throws Exception {

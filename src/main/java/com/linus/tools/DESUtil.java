@@ -1,12 +1,11 @@
 package com.linus.tools;
 
-import com.sun.xml.internal.messaging.saaj.util.Base64;
-
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -98,10 +97,9 @@ public class DESUtil {
      */
     public String encrypt(String source, String charSet)
             throws UnsupportedEncodingException {
-        String encrypt = null;
         byte[] ret = encrypt(source.getBytes(charSet));
-        encrypt = new String(Base64.encode(ret));
-        return encrypt;
+        return Base64.getEncoder().encodeToString(ret);
+//        return Base64.encodeBase64String(ret);
     }
 
     /**
@@ -120,10 +118,8 @@ public class DESUtil {
      */
     public String decrypt(String encryptedData, String charSet)
             throws UnsupportedEncodingException {
-        String descryptedData = null;
-        byte[] ret = descrypt(new Base64().decode(encryptedData.getBytes()));
-        descryptedData = new String(ret, charSet);
-        return descryptedData;
+        byte[] ret = decrypt(Base64.getDecoder().decode(encryptedData));
+        return new String(ret, charSet);
     }
 
     /**
@@ -209,7 +205,7 @@ public class DESUtil {
      * @author 宋立君
      * @date 2014年07月03日
      */
-    private byte[] descrypt(byte[] encryptedData) {
+    private byte[] decrypt(byte[] encryptedData) {
 
         /** DES算法要求有一个可信任的随机数源 */
         SecureRandom sr = new SecureRandom();
