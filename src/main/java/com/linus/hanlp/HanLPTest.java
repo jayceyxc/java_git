@@ -1,14 +1,21 @@
 package com.linus.hanlp;
 
 import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.model.crf.CRFLexicalAnalyzer;
+import com.hankcs.hanlp.model.crf.CRFNERecognizer;
+import com.hankcs.hanlp.model.crf.CRFPOSTagger;
+import com.hankcs.hanlp.model.crf.CRFSegmenter;
 import com.hankcs.hanlp.model.perceptron.PerceptronLexicalAnalyzer;
+import com.hankcs.hanlp.model.perceptron.PerceptronPOSTagger;
+import com.hankcs.hanlp.model.perceptron.PerceptronSegmenter;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.NLPTokenizer;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
-import com.hankcs.hanlp.utility.Predefine;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,7 +27,11 @@ import java.util.List;
  */
 public class HanLPTest {
 
+    /**
+     * 测试基于感知机的中文分词、词性标注与命名实体识别
+     */
     private static void testPerceptronLexicalAnalyzer() {
+        System.out.println("testPerceptronLexicalAnalyzer");
         try {
             File file = new File("data/model/perceptron/pku199801/cws.bin");
             if (file.exists()) {
@@ -29,7 +40,7 @@ public class HanLPTest {
             } else {
                 System.out.println("文件不存在");
             }
-            PerceptronLexicalAnalyzer analyzer = new PerceptronLexicalAnalyzer(HanLP.Config.PerceptronCWSModelPath,
+            PerceptronLexicalAnalyzer analyzer = new PerceptronLexicalAnalyzer(file.getAbsolutePath(),
                     HanLP.Config.PerceptronPOSModelPath,
                     HanLP.Config.PerceptronNERModelPath);
             System.out.println(analyzer.analyze("上海华安工业（集团）公司董事长谭旭光和秘书胡花蕊来到美国纽约现代艺术博物馆参观"));
@@ -50,7 +61,7 @@ public class HanLPTest {
             System.out.println(analyzer.analyze("我在四川金华出生，我的名字叫金华"));
 
             // 在线学习后的模型支持序列化，以分词模型为例：
-            analyzer.getPerceptronSegmenter().getModel().save(HanLP.Config.PerceptronCWSModelPath);
+//            analyzer.getPerceptronSegmenter().getModel().save(HanLP.Config.PerceptronCWSModelPath);
 
             /*
              * 请用户按需执行对空格制表符等的预处理，只有你最清楚自己的文本中都有些什么奇怪的东西
@@ -61,6 +72,9 @@ public class HanLPTest {
                     .replaceAll("\\s+", "")
                     .replaceAll("&nbsp;", "")
             ));
+//            PerceptronPOSTagger perceptronPOSTagger = analyzer.getPerceptronPOSTagger();
+//            double[] result = perceptronPOSTagger.evaluate("/Users/yuxuecheng/Learn/Source/github/java_git/data/hanlp_corpus/199801.txt");
+//            System.out.println(result);
         } catch (IOException ioe) {
             System.err.println(ioe.getMessage());
             ioe.printStackTrace();
@@ -68,11 +82,13 @@ public class HanLPTest {
     }
 
     private static void testStandardTokenizer() {
+        System.out.println("testStandardTokenizer");
         System.out.println(HanLP.segment("你好，欢迎使用HanLP汉语处理包！"));
 
         // 标准分词
         List<Term> termList = StandardTokenizer.segment("商品和服务");
         System.out.println(termList);
+        System.out.println("testStandardTokenizer");
         String str = "入院诊断：患者于三年前腹痛\n" +
                 "入院情况：\n" +
                 "患者因“诊断尿毒症4年余，反复心悸1天”入院，体检：T 36.3℃ P 94次/分 R 19次/分 BP 132/95mmHg；慢性肾病面容，贫血貌，全身皮肤黏膜无黄染及出血点，浅表淋巴结未触及，眼睑无浮肿，巩膜无黄染。颈软，双肺呼吸音粗糙，未闻及干湿性罗音，心律不齐，第一心音强弱不等，各瓣膜区未闻及病理性杂音，腹平软，肝脾肋缘下未及，腹部无压痛及反跳痛，双肾区无叩击痛，双下肢未见凹陷性水肿；左侧前臂内瘘杂音响亮。\n" +
@@ -86,6 +102,7 @@ public class HanLPTest {
     }
 
     private static void testNLPTokenizer() {
+        System.out.println("testNLPTokenizer");
         String str = "入院诊断：患者于三年前腹痛\n" +
                 "入院情况：\n" +
                 "患者因“诊断尿毒症4年余，反复心悸1天”入院，体检：T 36.3℃ P 94次/分 R 19次/分 BP 132/95mmHg；慢性肾病面容，贫血貌，全身皮肤黏膜无黄染及出血点，浅表淋巴结未触及，眼睑无浮肿，巩膜无黄染。颈软，双肺呼吸音粗糙，未闻及干湿性罗音，心律不齐，第一心音强弱不等，各瓣膜区未闻及病理性杂音，腹平软，肝脾肋缘下未及，腹部无压痛及反跳痛，双肾区无叩击痛，双下肢未见凹陷性水肿；左侧前臂内瘘杂音响亮。\n" +
@@ -97,9 +114,83 @@ public class HanLPTest {
 
         // NLP分词
         System.out.println("NLP分词");
-        System.out.println(System.getProperty("user.dir"));
         System.out.println(NLPTokenizer.segment(str));
+        System.out.println("NLP分词");
         System.out.println(NLPTokenizer.analyze(str).translateCompoundWordLabels());
+    }
+
+    public static void testCWS()
+    {
+        System.out.println("testCWS");
+        try {
+            PerceptronSegmenter segmenter = new PerceptronSegmenter(HanLP.Config.PerceptronCWSModelPath);
+            System.out.println(segmenter.segment("商品和服务"));
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static void testCRFSegmenter() {
+        try {
+            CRFSegmenter crfSegmenter = new CRFSegmenter(HanLP.Config.CRFCWSModelPath);
+            List<String> wordList = crfSegmenter.segment("商品和服务");
+            System.out.println(wordList);
+            wordList = crfSegmenter.segment("患者未再出现心悸不适，未诉腹痛不适，未诉其它特殊不适，精神、食欲、睡眠一般。监测血压相对稳定");
+            System.out.println(wordList);
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static void testCRFPOSTagger() {
+        try {
+            CRFSegmenter crfSegmenter = new CRFSegmenter(HanLP.Config.CRFCWSModelPath);
+            CRFPOSTagger crfposTagger = new CRFPOSTagger(HanLP.Config.CRFPOSModelPath);
+            String[] wordList = crfposTagger.tag(crfSegmenter.segment("商品和服务"));
+            System.out.println(Arrays.asList(wordList));
+            wordList = crfposTagger.tag(crfSegmenter.segment("患者未再出现心悸不适，未诉腹痛不适，未诉其它特殊不适，精神、食欲、睡眠一般。监测血压相对稳定"));
+            System.out.println(Arrays.asList(wordList));
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static void testCRFNERecognizer() {
+        try {
+            CRFSegmenter crfSegmenter = new CRFSegmenter(HanLP.Config.CRFCWSModelPath);
+            CRFNERecognizer crfneRecognizer = new CRFNERecognizer(HanLP.Config.CRFNERModelPath);
+            CRFPOSTagger crfposTagger = new CRFPOSTagger(HanLP.Config.CRFPOSModelPath);
+            String testStr = "商品和服务";
+            List<String> wordList = crfSegmenter.segment(testStr);
+            String[] posArray = crfposTagger.tag(wordList);
+            String[] nerArray = crfneRecognizer.recognize(wordList.toArray(new String[0]), posArray);
+            System.out.println(Arrays.asList(nerArray));
+
+            testStr = "患者未再出现心悸不适，未诉腹痛不适，未诉其它特殊不适，精神、食欲、睡眠一般。监测血压相对稳定";
+            wordList = crfSegmenter.segment(testStr);
+            posArray = crfposTagger.tag(wordList);
+            nerArray = crfneRecognizer.recognize(wordList.toArray(new String[0]), posArray);
+            System.out.println(Arrays.asList(nerArray));
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static void testCRFLexicalAnalyzer() {
+        try {
+            CRFLexicalAnalyzer analyzer = new CRFLexicalAnalyzer(HanLP.Config.CRFCWSModelPath, HanLP.Config.CRFPOSModelPath, HanLP.Config.CRFNERModelPath);
+            String[] tests = new String[]{
+                    "商品和服务",
+                    "上海华安工业（集团）公司董事长谭旭光和秘书胡花蕊来到美国纽约现代艺术博物馆参观",
+                    "微软公司於1975年由比爾·蓋茲和保羅·艾倫創立，18年啟動以智慧雲端、前端為導向的大改組。" // 支持繁体中文
+            };
+            for (String sentence : tests) {
+                System.out.println(analyzer.analyze(sentence));
+                System.out.println(analyzer.seg(sentence));
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
 
 
@@ -108,8 +199,13 @@ public class HanLPTest {
 //        System.out.println(System.getProperty("java.class.path"));
         System.setProperty("HANLP_ROOT", "/Users/yuxuecheng/Learn/Source/github/java_git/");
         HanLP.Config.enableDebug();
-        testPerceptronLexicalAnalyzer();
+//        testPerceptronLexicalAnalyzer();
 //        testNLPTokenizer();
 //        testStandardTokenizer();
+//        testCWS();
+//        testCRFSegmenter();
+        testCRFPOSTagger();
+        testCRFNERecognizer();
+        testCRFLexicalAnalyzer();
     }
 }
